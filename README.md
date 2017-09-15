@@ -136,6 +136,7 @@ purpose, and some of the design pattern implementations they include:
 
 The packages are layered with the following dependencies:
 
+```
   taxonomy
     |              
     \--> serialization
@@ -155,6 +156,7 @@ The packages are layered with the following dependencies:
     \----- \----- \----- \----- | ---- | ---- | ----- | --> chain
     |      |      |      |      |      |      |       |       |
     \----- \----- \----- \----- \----- \----- \------ \------ \---> atoms
+```
 
 ===============================================================================
 (end of document)
