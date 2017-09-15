@@ -1,0 +1,40 @@
+#-----------------------------------------------------------
+#   Copyright 2007-2017 (c) Alkaline Games LLC
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#-----------------------------------------------------------
+#       file:   make_include_common_msvc
+#    project:   all projects 
+#   platform:   independent
+#     format:   GNU Make
+#    authors:   Christopher Augustus
+#-----------------------------------------------------------
+#   Define the common settings using MSVC.
+#-----------------------------------------------------------
+
+CXX                             := cl
+
+CXX_EXTRA_DEFINES               := -D_WINDOWS -D__WXMSW__ -D_DEBUG
+
+CXX_FLAG_CODE_GEN               := -G6
+CXX_FLAG_DEBUG                  := -Zi
+CXX_FLAG_EXCEPTIONS             := -GX
+ifndef CXX_FLAG_IMPLICIT_TEMPLATES
+CXX_FLAG_NO_IMPLICIT_TEMPLATES  :=
+endif
+CXX_FLAG_RTTI                   := -GR
+CXX_FLAG_RUNTIME                := -MD
+CXX_FLAG_WARNINGS               := -W3
+
+CXX_FLAGS                       := $(CXX_FLAG_CODE_GEN) $(CXX_FLAG_EXCEPTIONS) $(CXX_FLAG_RUNTIME) $(CXX_FLAG_RTTI)
+
+CXX_MSVC_INCLUDES               := -I/opt/microsoft_visual_studio/VC98/include
+CXX_STANDARD_INCLUDES           := $(CXX_MSVC_INCLUDES) $(CXX_STANDARD_INCLUDES) 
+
+SHARED_LIB_TOOL                 := $(CXX)
+SHARED_LIB_TOOL_FLAGS           := -LD $(CXX_FLAG_RUNTIME) $(SHARED_LIB_TOOL_FLAGS)
+
+#---------------------------------------	    
+# (end of file)	 			

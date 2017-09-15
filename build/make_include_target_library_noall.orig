@@ -1,0 +1,103 @@
+#-----------------------------------------------------------
+#   Copyright 2002-2017 (c) Alkaline Games LLC
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#-----------------------------------------------------------
+#       file:   make_include_target_library
+#    project:   all projects 
+#   platform:   independent
+#     format:   GNU Make
+#    authors:   Christopher Augustus
+#-----------------------------------------------------------
+#   Define the standard target for building a library.
+#
+#   This file sets some variables based on the current values
+#   of these critical control variables:
+#
+#   COMPONENT           component name
+#   EXTRA_OBJECTS_DIRS  additional build directories for objects
+#   LIBRARY_DIR         build directory for library
+#   OBJECTS_DIR         primary build directory for objects
+#   OBJECTS             list of object files to build and put in library
+#   OBJECTS_C           ...ditto.., but ansi C instead of C++
+#   OBJECTS_NOLIB       object files to build but not put in library
+#   OBJECTS_NORULE      list of objects files, but don't apply a rule  
+#-----------------------------------------------------------
+
+LIBRARY_FILE := lib$(COMPONENT_PREFIX)$(COMPONENT).a
+LIBRARY := $(LIBRARY_DIR)/$(LIBRARY_FILE)
+
+ifdef LIBRARY_UNIVERSAL_DIR
+LIBRARY_UNIVERSAL := $(LIBRARY_UNIVERSAL_DIR)/$(LIBRARY_FILE)
+endif
+ifdef LIBRARY_OTHER_DIR
+LIBRARY_OTHER := $(LIBRARY_OTHER_DIR)/$(LIBRARY_FILE)
+ifneq ($(wildcard $(LIBRARY_OTHER)),)
+    LIBRARY_OTHER_ARCH := $(LIBRARY_OTHER)
+endif
+endif
+
+#---------------------------------------
+#   targets
+#---------------------------------------
+
+library: $(EXTRA_OBJECTS_DIRS) $(OBJECTS_DIR) $(LIBRARY_DIR) $(LIBRARY_UNIVERSAL_DIR) $(LIBRARY) $(LIBRARY_UNIVERSAL) $(OBJECTS_NOLIB)
+
+ifdef LIBRARY_UNIVERSAL
+$(LIBRARY_UNIVERSAL_DIR):
+	$(MKDIR) $(MKDIR_FLAGS) $@
+
+$(LIBRARY_UNIVERSAL): $(LIBRARY)
+	lipo $< $(LIBRARY_OTHER_ARCH) -create -output $@
+endif
+
+$(LIBRARY): $(OBJECTS) $(OBJECTS_TEMPLATED) $(OBJECTS_NORULE) $(OBJECTS_C)
+	$(ARCHIVE) $(ARCHIVE_FLAGS) $@ $(OBJECTS) $(OBJECTS_TEMPLATED) $(OBJECTS_NORULE) $(OBJECTS_C)
+
+$(LIBRARY_DIR):
+	$(MKDIR) $(MKDIR_FLAGS) $@
+
+$(OBJECTS_DIR):
+	$(MKDIR) $(MKDIR_FLAGS) $@
+
+$(OBJECTS): $(OBJECTS_DIR)/%.o: %.cpp
+	$(CXX) $(CXX_FLAG_NO_IMPLICIT_TEMPLATES) $(CXX_FLAGS) -c $< -o $@
+
+$(OBJECTS): $(OBJECTS_DIR)/%.o: %.rs
+	$(RUST) $(RUST_FLAG_NO_IMPLICIT_TEMPLATES) $(RUST_FLAGS) -c $< -o $@
+
+$(OBJECTS_TEMPLATED): $(OBJECTS_DIR)/%.o: %.cpp
+	$(CXX) $(CXX_FLAGS) -c $< -o $@
+
+$(OBJECTS_TEMPLATED): $(OBJECTS_DIR)/%.o: %.rs
+	$(RUST) $(RUST_FLAGS) -c $< -o $@
+
+$(OBJECTS_NOLIB): $(OBJECTS_DIR)/%.o: %.cpp
+	$(RUST) $(RUST_FLAGS) -c $< -o $@
+
+$(OBJECTS_NOLIB): $(OBJECTS_DIR)/%.o: %.rs
+	$(CXX) $(CXX_FLAGS) -c $< -o $@
+
+$(OBJECTS_C): $(OBJECTS_DIR)/%.o: %.c
+	gcc -c $(CXX_FLAGS) $< -o $@
+
+#---------------------------------------
+
+clean:
+	$(RM) $(RM_FLAGS) $(OBJECTS) $(OBJECTS_TEMPLATED) $(OBJECTS_NOLIB) $(OBJECTS_C)
+	
+cleanfinal:
+	$(RM) $(RM_FLAGS) $(LIBRARY)
+	
+clobber: clean cleanfinal
+	
+cleanidl: clean
+
+cleanall: clean
+
+clobberall: clobber
+
+#---------------------------------------	    
+# (end of file)	 			

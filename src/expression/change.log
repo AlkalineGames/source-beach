@@ -1,0 +1,99 @@
+CHANGELOG
+---------
+v1.1	- Added PerlString::tr()
+	- Added PerlString::operator+=(char)
+	- Added PerlString(const char) constructor
+
+v1.2	- Fixed a test case in PerlClass
+	- Increased initial allocation of PerlString to 32 characters
+	- Optimized PerlStringList::grep() by only compiling regexp once
+	- Added PerlString::m(const Regexp&...) so that pre-compiled regular
+	  expressions can be used
+	- changed "fprintf(stderr..." to "cerr << ..." in regexp.h
+	- Added c, d & s options to the PerlString::tr() function
+	- fixed some bugs in tr() range processing
+
+v1.3	- Cleaned up MArray constructor - Thanks Michael
+	- Cleaned up tr() some more. Fixed d and s and c option.
+	- Added PerlStringList PerlString::split()
+	- Added operator>>() for PerlString
+	- Added operator>>() for PerlStringList
+	- Fixed operator<<() for PerlStringList
+	- Added operator>>() for PerlList
+	- Fixed operator<<() for PerlList
+
+v1.4	- Implemented PerlList::sort()
+	- Implemented PerlString:s(), the substitute command
+	- Added subexpression replacement in PerlString:s()
+	- split out the test code from perlclass.c++ into perltest.c++
+	- fixed bug in substr() for default length
+	- Added the 'g' option for PerlString:s()
+	- Changed the way that PerlString::m(s, l) works, now the list
+	  'l' is reset first.
+	- Added PerlList<T>:operator void*() so a list can be used in
+	  a conditional, and returns 0 if the list is empty
+	- Added PerlStringList m(pat, str) to match perl syntax
+	- Added case insensitive matching to Regexp class
+	- Added 'i' option to PerlStringList::grep
+	- Added 'i' option to the m() functions
+	- Added 'i' option to PerlString::s() function
+	- Added a generic Makefile - Hooray
+
+v1.5	- Added PerlList<T>::isempty()
+	- Added PerlListBase instead of MArray, which uses the empty
+	  space technique at front and back as suggested by MG.
+	- Changed PerlListBase::operator[]() to allow indexing non-existing
+	  elements, and implemented auto grow.
+	- Fixed splice() to append to end of list if offset is > number
+	  of items in list, this matches perls behaviour
+	- Fixed potential overrunning end of string in substring class
+	- added a const version of Binar::key() and value()
+	- Replaced MArray with VarString class for improved string
+	  handling - ie faster
+
+v1.6	- Changed VarString::operator=() to not delete and new if
+	  enough is already allocated. (as per MG)
+	- Fixed a grow() bug in VarString::add(char)
+	- Sped up tr() by replacing lookup with indexed array for search
+	- Fixed split() so it splits on whitespace by default
+	- Added a PerlString::substring(Range) for convenience
+	- Fixed split() to use regular expression for pattern, as per
+	  Perl (including subexpressions)
+	- Fixed pop() to not give an assertion error when list is empty
+	  but to return an undefined element instead
+	- Added special awk case to split("' '")
+	- Added special case for empty string in split("")
+
+v1.7	- Changed Names from Perl... to SP... for release to alt.sources
+	- Added typdefs so old names would still work
+	- renamed all files from perlclass.* to splash.*
+	- Put a check in SPString::index() for offset < 0
+
+v1.8	- added comparison operators to SPString to allow permutations
+	  of comparisons with char *'s.
+	- added Slice and SubList to handle SPList slices
+	- Added intersection and union of Ranges and test for validity
+	- Added operator++ for extendng end of range by one
+	- Stored length of Range rather than calculate it every time
+
+V1.9
+	- fixed the assert error in Range/Regexp when a match is zero
+          length	
+	- fixed slicetst.cpp
+	- Moved stuff around to get rid of BC4.0 warnings about inlines
+	- Added the SPListIter functions in a separate header file
+	- Rewrite SPListBase::grow() to re-center first, before trying to re-allocate.
+	  This stops the unlimited growing of lists being used as fifos.
+	- Fixed a bug in VarString::remove() (- Thanks Tor)
+	- added SPListIter class in file splistit.h
+	- Added explicit templates for gcc-2.6.3
+
+v1.91
+   	- Changed where substring was declared for Watcom
+ 	- MSVC4.0 didn't like operator<< declared in spltest.cpp
+	- moved for(int i;..) for new scoping rules
+
+v1.92
+	- Added memory leak detection for MSVC4.0
+	- Added a macro to assoc.h for gnu c++ declaration
+

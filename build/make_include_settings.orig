@@ -1,0 +1,178 @@
+#-----------------------------------------------------------
+#   Copyright 2002-2017 (c) Alkaline Games LLC
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#-----------------------------------------------------------
+#       file:   make_include_settings
+#    project:   all projects 
+#   platform:   independent
+#     format:   GNU Make
+#    authors:   Christopher Augustus
+#-----------------------------------------------------------
+#   Define the common settings for building all projects.
+#   This file should be included after all other includes.
+#
+#   This file sets some variables based on the current values
+#   of these critical control variables:
+#
+#   TOP_DIR             relative path from `pwd` to the top directory 
+#   COMPONENT           component name (atoms, etc.)
+#   DEBUG_OR_RELEASE    set to either "Debug" or "Release"
+#   OS                  operating system (linux, mingw, etc.) 
+#   PARTITION           partition name (services, etc.) 
+#   PARTITION_INCLUDES  compiler include directions for the partition 
+#   PROFILE             define to generate profiling support
+#   PROJECT             project name (beach, ocean, sandbar, etc.)
+#   PROJECT_INCLUDES    compiler include directories for the project
+#
+#   Common targets (defined as .PHONY at bottom of this file):
+#
+#       all         Bring all targets up to date
+#
+#       clean       Remove all intermediate objects and archives
+#                       excluding IDL generated source and objects
+#
+#       cleanfinal  Remove all final targets (executables and shared libraries)
+#
+#       clobber     Remove all final targets and intermediate files,
+#                       excluding IDL generated source and objects
+#
+#       cleanidl    Remove IDL generated source and objects
+#
+#       cleanall    Remove all intermediate objects and archives
+#                       including IDL generated source and objects
+#
+#       clobberall  Remove all final targets and intermediate files,
+#                       including IDL generated source and objects
+#-----------------------------------------------------------
+
+#---------------------------------------
+#   development directories
+#---------------------------------------	    
+
+RUN_DIR         := $(TOP_DIR)/run
+TOP_OUTPUT_DIR  := $(TOP_DIR)/out/$(PLATFORM)/$(DEBUG_OR_RELEASE)
+TOP_TARGET_DIR  := $(RUN_DIR)/$(PLATFORM)
+
+#---------------------------------------
+#   target directories
+#---------------------------------------	    
+
+ifdef PROJECT
+PROJECT_SUBDIR := /$(PROJECT)
+endif
+
+ifdef PARTITION
+PARTITION_SUBDIR := /$(PARTITION)
+endif
+
+ifdef COMPONENT
+COMPONENT_SUBDIR := /$(COMPONENT)
+endif
+
+PROJECT_OUTPUT_DIR      := $(TOP_OUTPUT_DIR)$(PROJECT_SUBDIR)
+PARTITION_OUTPUT_DIR    := $(PROJECT_OUTPUT_DIR)$(PARTITION_SUBDIR)
+COMPONENT_OUTPUT_DIR    := $(PARTITION_OUTPUT_DIR)$(COMPONENT_SUBDIR)
+LIBRARY_DIR             := $(TOP_OUTPUT_DIR)
+ifdef PLATFORM_UNIVERSAL
+LIBRARY_UNIVERSAL_DIR   := $(TOP_DIR)/out/$(PLATFORM_UNIVERSAL)/$(DEBUG_OR_RELEASE)
+endif
+ifdef PLATFORM_OTHER
+LIBRARY_OTHER_DIR       := $(TOP_DIR)/out/$(PLATFORM_OTHER)/$(DEBUG_OR_RELEASE)
+endif
+OBJECTS_DIR             := $(COMPONENT_OUTPUT_DIR)
+ifdef PRODUCT_SUBDIR
+TARGET_DIR              := $(TOP_TARGET_DIR)$(PRODUCT_SUBDIR)$(PARTITION_SUBDIR)
+else
+TARGET_DIR              := $(TOP_TARGET_DIR)$(PROJECT_SUBDIR)$(PARTITION_SUBDIR)
+endif
+
+#---------------------------------------
+#   variables
+#---------------------------------------	    
+
+ifdef CXX_MSVC
+include $(BUILD_DIR)/make_include_settings_msvc
+else
+include $(BUILD_DIR)/make_include_settings_gcc
+endif
+
+CXX_DEFINES                     := -D$(OS_DEFINE) -D$(OS_FAMILY) -D$(OS_API_UC) -DPLATFORM=$(PLATFORM)
+ifdef CXX_EXTRA_DEFINES
+CXX_DEFINES                     := $(CXX_DEFINES) $(CXX_EXTRA_DEFINES)
+endif
+ifdef OS_ANCESTOR
+CXX_DEFINES                     := $(CXX_DEFINES) -D$(OS_ANCESTOR)
+endif
+
+CXX_INCLUDES                    := -I. $(PARTITION_INCLUDES) $(PROJECT_INCLUDES)
+ifdef CXX_EXTRA_INCLUDES
+CXX_INCLUDES                    := $(CXX_INCLUDES) $(CXX_EXTRA_INCLUDES)
+endif
+ifdef CXX_STANDARD_INCLUDES
+CXX_INCLUDES                    := $(CXX_INCLUDES) $(CXX_STANDARD_INCLUDES) 
+endif
+ifdef CXX_POST_STANDARD_INCLUDES
+CXX_INCLUDES                    := $(CXX_INCLUDES) $(CXX_POST_STANDARD_INCLUDES) 
+endif
+ifdef CXX_PRE_INCLUDE_FILES
+CXX_INCLUDES                    := $(CXX_INCLUDES) $(CXX_PRE_INCLUDE_FILES)
+endif
+
+CXX_FLAGS                       := $(CXX_FLAGS) $(CXX_FLAGS_PLATFORM) $(CXX_FLAG_WARNINGS) $(CXX_PLATFORM_FLAGS) $(CXX_INCLUDES) $(CXX_DEFINES) $(CXX_EXTRA_FLAGS)
+ifdef MAKERULE
+CXX_FLAGS                       := $(CXX_FLAG_MAKERULE) $(CXX_FLAGS)
+endif
+ifdef PROFILE
+CXX_FLAGS                       := $(CXX_FLAG_PROFILE) $(CXX_FLAGS)
+LINK_FLAGS                      := $(LINK_FLAG_PROFILE) $(LINK_FLAGS)
+endif
+ifdef RELEASE
+CXX_FLAGS                       := $(CXX_FLAG_OPTIMIZE) $(CXX_FLAGS)
+else
+CXX_FLAGS                       := $(CXX_FLAG_DEBUG) $(CXX_FLAGS)
+endif
+ifdef DEPS
+CXX_FLAGS                       := $(CXX_FLAG_DEPS) $(CXX_FLAGS)
+endif
+
+CP                              := cp
+CP_FLAG_FORCE                   := -f
+CP_FLAG_PRESERVE                := -P
+CP_FLAG_RECURSE                 := -r
+CP_FLAG_VERBOSE                 := -v
+
+LNS                             := ln -s
+
+MKDIR                           := mkdir
+MKDIR_FLAGS                     := -p
+
+RM                              := rm
+RM_FLAG_FORCE                   := -f
+RM_FLAG_RECURSE                 := -r
+RM_FLAG_VERBOSE                 := -v
+RM_FLAGS                        := $(RM_FLAG_FORCE)
+
+#---------------------------------------
+#   implicit pattern rules 
+#---------------------------------------	    
+
+%.o: %.cpp
+	$(CXX) $(CXX_FLAGS) -c $< -o $@
+
+%.o: %.rs
+	$(RUST) $(RUST_FLAGS) -c $< -o $@
+
+%.h: %.idl
+	$(IDL) $(IDL_FLAGS) $<
+
+#---------------------------------------
+#   common phony targets 
+#---------------------------------------	    
+
+.PHONY: all clean cleanfinal clobber cleanidl cleanall clobberall
+
+#---------------------------------------	    
+# (end of file)	 			

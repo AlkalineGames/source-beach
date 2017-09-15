@@ -1,0 +1,16 @@
+#!/bin/bash
+# common subscript to debug a program
+# NOTE: this variation is no longer used but kept to preserve the code
+#
+if [[ -z $1 || -z $2 || -z $3 || -z $4 ]]
+then
+    echo 'usage: subdebug <debugger> <dirs suffix> <args suffix> <executable> [<gdb options>]'
+    exit 1
+fi
+echo THIS_SYMLINK_PATH=$THIS_SYMLINK_PATH
+ARGS=`cat $THIS_SYMLINK_PATH/cmd_args_$3`
+echo "set args $ARGS" >temp_gdb_cmds_set_args
+### MIGHT NOT NEED dirs WITH MOST RECENT gdb
+###$1 --command=$THIS_SYMLINK_PATH/gdb_cmds_dirs_$2 --command=temp_gdb_cmds_set_args $5 $4 &
+$1 --command=temp_gdb_cmds_set_args $5 $4 &
+#

@@ -1,0 +1,334 @@
+                    SPLASH Class Library
+
+class SPList<T>  A list of any type specified by T
+                 
+  T& operator[](n)       returns a reference to the element at
+                        index 'n' (0 based). Generates an ASSERT
+                        error if n < 0, can be used as an
+                        lvalue. Using an index greater than the
+                        current size of the list will cause the
+                        list to grow upto that index. The values
+                        inbetween will be undefined if <T> is a
+                        built-in type.
+  operator void*()     returns NULL if the list is empty, can
+                        be used like:
+                        if(list) // not empty
+  int isempty()        returns TRUE if the list is empty, as
+                        analternative for the previous technique
+  void reset()         clears all elements in the list, but
+                        doesn'tactually free up the storage
+                        until it is destroyed
+  int count()          returns the number of elements in the
+                        list
+  int scalar()         Perl-like Synonym (alias) for count()
+  T pop()              removes and returns the last element on
+                        thelist. If the list is empty the value
+                        returned is usually undefined
+  void push(T x)       puts the single value `x` at the end of
+                        the list
+  void push(SPList<T> l)    puts all the elements in the list
+                        `l` at the end of the list.
+  T shift()            removes and returns the first element in
+                        the list
+  int unshift(T x)     puts the single value `x` at the start
+                        of the list
+  int unshift(SPList<T> l)  puts all the elements in the list
+                        `l`at the start of the list
+  SPList<T> reverse()  returns a list that is in the
+                        reverseorder
+  SPList<T> splice(offset, len, SPList<T> l)
+                        removes `len` elements from `offset` (0
+                        based) and inserts all the elements in
+                        the list `l` at the same position
+  SPList<T> splice(offset, len)  removes `len` elements from
+                        `offset` (0 based)
+  SPList<T> splice(offset)  removes all the elements from
+                        `offset` (0 based)
+  SPList<T> sort()     returns a list that has been sorted
+                        accordingto the rules that
+                        T::operator<() returns for the type T.
+  SubList<T> operator()(offset, len)  Returns the SubList from
+                        `offset` for `len` elements. Maybe
+                        assigned to a SPList or used wherever an
+                        SPList may be used. Can also be assigned
+                        to, in which case the specified elements
+                        are replaced with the RHS
+  SubList<T> operator()(Range rng)    Same as above, but
+                        returns the range specified by `rng`
+  SubList<T> operator()(Slice slc)    Same as above, but
+                        returns the slice specified by `slc`. A
+                        slice can be a non-contiguous set of
+                        Ranges. See Slice below.
+  SubList<T> operator()(char *s) Same as above, but returns the
+                        slice specified by `s` where `s` is a
+                        string that specifies a set of indices.
+                        `s` can be:-
+                         "a..b" or "a-b" which specifies a
+                           continuous range from a thru' b.
+                         "a,b,c" which specifies individual
+                           indices a, b and c.
+                         "a..b,c,d" which specifies a range and 2
+                           individual indices.
+
+class SPStringList    everything SPList does and ...
+                 
+  int split(str [,pat] [,limit]) appends the results of
+                        splitting the string `str` to the list.
+                        If `pat` is specified then any string
+                        that matches the RE `pat` is considered
+                        a separator to split on, the default is
+                        white-space. If `limit` is specified
+                        then no more than that number of
+                        elements is generated. If `limit` is not
+                        specified, then empty entries are
+                        stripped from the end of the list. If
+                        the RE includes subexpressions then they
+                        are inserted into the list as well. If
+                        `pat` is equal to the string "` `" then
+                        a special case is done which matches
+                        awks handling of whitespace. If `pat` is
+                        an empty string "", then all characters
+                        are split into the list
+  SPString join([pat]) Returns the string that is the result of
+                        combining all the elements in the list,
+                        and separating them by `pat`. If `pat`
+                        is omitted then the elements are
+                        separated by a space
+  int m(const char *exp, targ [,opts)
+                        Appends to the list all
+                        the subexpression matches that occured
+                        when applying the regular expression
+                        `exp` to the string `targ`.The number of
+                        matches is returned. The first element
+                        generated is the entire matched string
+                        opts: (a const char * with default "")
+                         i -    Forces case insensitive match
+  SPStringList grep(const char *exp [,opts])
+                        returns a list of all the elements
+                        that matched the regular expression
+                        `exp`.
+                        opts: (a const char * with default "")
+                         i - Forces the search to be case
+                             insensitive
+
+class SPString   A standard c null-terminated string may be used
+                 anywhere that a SPString can be used and vice-
+                 versa.
+                 
+  char operator[]      Allows Individual characters to be read
+                        with the `[]` operator.
+  int length()         returns the length of the string
+  char chop()          removes and returns the last character
+                        in the string
+  int index(SPString str [, offset])  returns the offset in the
+                        string that matches the string `str`,
+                        starting at position `offset` if
+                        specified, otherwise searches the entire
+                        string. Returns -1 if no match is found
+  int rindex(SPString str [, offset]) returns the offset in the
+                        string that matches the string `str`,
+                        starting at the end of the string
+                        `offset` if specified, otherwise
+                        searches the entire string. Returns -1
+                        if no match is found
+  substring substr(offset [, len])    returns the substring
+                        within the string that starts at
+                        `offset` and is `len` characters, if
+                        `len` is omitted the rest of the string
+                        is returned. This may be used as an
+                        lvalue, in which case the characters are
+                        removed, and the RHS of the expression
+                        in inserted at the same postion.
+  SPStringList split([,pat] [,limit]) same as
+                        SPStringList::split() but returns a list
+                        of splits
+  operator<            These operators do what you would expect
+  operator>
+  operator<=
+  operator>=
+  operator==
+  operator!=
+  operator+            returns the result of contenating two or
+                        more strings
+  operator+=           replaces the LHS of the expression with
+                        the concatenation of the LHS with the
+                        RHS
+  int m(const char *exp [,opts]) returns 0 if the regular
+                        expression `exp` fails to match the
+                        string. Returns 1 if a match was made.
+                        opts: (a const char * with default "")
+                         i - Forces case insensitive match
+  int m(const Regexp& exp)  Same as above but takes a
+                        precompiled regular expression.
+  int m(const char *exp, SPStringList& l [,opts])
+                        Loads the list `l` with all
+                        subexpression matches of the regular
+                        expression `exp` with the string.
+                        Returns 0 if no matches were made.
+                        Returns the number of matches if any.
+                        opts: (a const char * with default "")
+                         i - Forces case insensitive match
+  int m(const Regexp& exp, SPStringList& l)
+                        Same as above but takes a precompiled
+                        regular expression.
+  int tr(search, repl [,opts])   replaces all occurrences of
+                        characters in `search` with the
+                        equivalent character in `repl`. If
+                        `repl` is empty then just counts the
+                        characters.
+                        opts: (a const char *) default is ""
+                         c - complements the `search`
+                             pattern. Replaces all characters that
+                             are not in `search`, with the last
+                             character specified in `repl`.
+                         d - deletes characters in `search`
+                             that don't have an equivalent `repl`
+                         cd - deletes characters not in
+                              `search`
+                         s - compresses sequences of translated
+                             characters in resulting string
+  int s(exp, repl [,opts])  substitute the first substring
+                        matched by `exp` with the string `repl`.
+                        $& in `repl` will be replaced by the
+                        entire matching string, $1 $9 will be
+                        replaced by the respective subexpression
+                        match. \$ or \\ will insert a $ or \
+                        respectively.
+                        opts: (a const char *) default is ""
+                         g - causes all occurrences of `exp`
+                             in the string to be replaced by
+                             `repl`
+                         i - Forces case insensitive matching
+
+class Assoc<T>   an associative array whose key is a SPString and
+                 the value is any type T
+  Assoc(SPString defkey, T defvalue)  Constructor for an
+                        associative array, `defkey` becomes the
+                        default key, and `defvalue` is the
+                        default value. The default value is used
+                        to create a new Association if a key is
+                        specified that doesn't yet exist.
+  T& operator(SPString str) returns a reference to the value
+                        that is associated with the key `str`.
+                        This may be used as an lvalue, and is in
+                        the only way to make an association. If
+                        the key didn't exist it will be entered
+                        with the default value, if it was
+                        specified in the constructor, and a
+                        reference to that is returned. If no
+                        default was specified, then the value
+                        will be undefined
+  Binar& operator[n]   Returns the (key, value) pair found at
+                        index `n` of the associative array
+  SPStringList keys()  Returns a list of all the keys in the
+                        associative array.
+  SPList<T> values()   Returns a list of all the values in the
+                        associative array.
+  int isin(SPString key)    Returns 1 if the string `key` is a
+                        valid key in the associative array.
+                        Returns 0 otherwise.
+  T adelete(SPString key)   deletes the entry whose key matches
+                        the string `key`. The value of the
+                        deleted entry is returned. Nothing
+                        happens if the key is not found.
+
+class Range      stores the range used in Regexp
+  Range(s, e)          creates a range whose start is at
+                        position `s` and the last character in
+                        the range is at position `e`. (inclusive
+                        range)
+  int start()          returns the start of the range
+  int end()            returns the end of the range (the
+                        position of the last character in the
+                        range)
+  int length()         returns the length of the range
+  set(s, e)            sets the start of the range to `s` and
+                        the end of the range to `e`
+
+class Slice      allows the creation of a set of index ranges for
+                 use in SPList to create SubLists. The order in
+                 which elements of an SPList is accessed is the
+                 same as the order that the indices are added to
+                 the Slice.
+                 
+  Slice(const char *s) creates a slice specified by `s` where
+                        `s` is a string that specifies a set of
+                        indices.
+                        `s` can be:-
+                        "2..6" or "2-6" which specifies a
+                        continuous range from 2 thru 6.
+                        "2,5,7" which specifies individual
+                        indices 2 5 7.
+                        "5..9,11,16" which specifies a range 5
+                        thru 9 and individual indices 11 and 16.
+  Slice(int i1, i2, ... , -1)    creates a slice from a set of
+                        indices specified by `i1` `i2` upto a
+                        parameter that is -1. This is a variable
+                        number of arguments terminated by a -1.
+                        NOTE that this is not type safe.
+  Slice(Range rng)     creates a slice that is a range
+                        specified by `rng`.
+  add(int i)           allows the dynamic creation of a slice
+                        by adding individual indices to the
+                        slice.
+  compact()            may be used after add()'ing indices to a
+                        Slice, and before using the Slice to
+                        optimise it. (Optional)
+
+class Regexp     Henry Spencers regular expression package oo-
+                 ized
+  Regexp(exp [,opts])  Compiles a regular expression that can
+                        be passed to one of the m() functions.
+                        opts: (an int with default 0)
+                          Regexp::nocase - Forces case
+                           insensitive match
+  int match(targ)      returns 1 if the compiled RE matches
+                        `targ` returns 0 if not
+  int groups()         returns 1 + the number of subexpression
+                        matches found in the last match(). If
+                        the previous match() succeeded then the
+                        whole match is included in the count
+                        (hence +1)
+  Range getgroup(n)    returns the range of the `n`th subgroup.
+                        `n` = 0 is the range of the entire match
+
+Class SPListIter Allow Iteration through a SPList
+  SPListIter(T)        Inititialise an iterator for the SPList
+                        T
+  reset()              Reset the Iterator to start again
+  operator()           Return the next list item
+  operator++           Prefix and postfix increments of the
+                        iterator
+  FOREACH(ty, var, list)    Iterates through the list of type
+                        ty assigning the next value to var each
+                        time through the loop
+  ENDFOREACH           Used to terminate a FOREACH command
+
+Miscellaneous
+                 
+  SPStringList m(exp, targ [,opts])   returns a list of all the
+                        subexpression matches that occured when
+                        applying the regular expression `exp` to
+                        the string `targ`. element 0 of the list
+                        is the first subexpression, element 1
+                        the next, etc. opts: (a const char *
+                        with default "")
+                         i - Forces case insensitive match
+  xin >> astring       Text from the stream xin is loaded into
+                        astring, the text is expected to be
+                        terminated by '\n', which is removed
+                        from the stream, but not put into
+                        astring. asring is cleared first.
+  xin >> astringlist   Each Text line, as defined above, is
+                        loaded into an element of astringlist,
+                        which is reset first.
+To pre-compile a regular expression use Regexp(const char *,
+iflg).
+eg
+     Regexp rexp("...([a-z*)$");
+     // Regexp rexp("...([a-z*)$", Regexp::nocase); // for case
+     insensitive SPString s;
+     for(int i=0;i<large_number;i++){
+          ... load s with string ...
+          if(s.m(rexp)) ... do something when matched
+     }

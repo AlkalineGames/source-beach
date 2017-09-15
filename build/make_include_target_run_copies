@@ -1,0 +1,80 @@
+#-----------------------------------------------------------
+#   Copyright 2002-2017 (c) Alkaline Games LLC
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#-----------------------------------------------------------
+#       file:   make_include_target_copies
+#    project:   all projects 
+#   platform:   independent
+#     format:   GNU Make
+#    authors:   Christopher Augustus
+#-----------------------------------------------------------
+#   Define the standard target for copying run files.
+#
+#   This file sets some variables based on the current values
+#   of these critical control variables:
+#
+#   PLATFORM        platform string used as subdirectory name
+#   RUN_DIR         top directory for target run files
+#-----------------------------------------------------------
+
+RUN_SOURCE_FILES   	:= $(wildcard sh*)
+ANY_SOURCE_FILES   	:= $(shell find any -type f -name '*')
+ANY_SOURCE_SUBDIRS 	:= $(shell find any -type d -name '*')
+
+RUN_TARGET_FILES    := $(addprefix $(RUN_DIR)/,$(RUN_SOURCE_FILES))
+ANY_TARGET_FILES    := $(addprefix $(RUN_DIR)/,$(ANY_SOURCE_FILES))
+ANY_TARGET_DIRS     := $(addprefix $(RUN_DIR)/,$(ANY_SOURCE_SUBDIRS))
+
+ANY_TARGET_DIR      := $(RUN_DIR)/any
+PLATFORM_DIR        := $(RUN_DIR)/$(PLATFORM)
+
+PLATFORM_DIRS       := $(subst $(ANY_TARGET_DIR),$(PLATFORM_DIR),$(ANY_TARGET_DIRS))
+PLATFORM_SYMLINKS   := $(subst $(ANY_TARGET_DIR),$(PLATFORM_DIR),$(ANY_TARGET_FILES))
+
+SOURCE_FILES        := $(RUN_SOURCE_FILES) $(ANY_SOURCE_FILES) 
+TARGET_FILES        := $(RUN_TARGET_FILES) $(ANY_TARGET_FILES) 
+TARGET_DIRS         := $(ANY_TARGET_DIRS) $(PLATFORM_DIRS)
+
+EMPTY               :=
+SPACE               := $(EMPTY) $(EMPTY)
+
+#---------------------------------------
+#   targets
+#---------------------------------------
+
+all: $(TARGET_DIRS) $(RUN_TARGET_FILES) $(ANY_TARGET_FILES) $(PLATFORM_SYMLINKS)
+
+$(TARGET_DIRS):
+	$(MKDIR) $(MKDIR_FLAGS) $@
+
+$(RUN_DIR)/%: %
+	$(CP) $(CP_FLAG_FORCE) $< $@
+
+$(TARGET_FILES): $(SOURCE_FILES)
+
+# the complicated function sequence below creates a
+# relative directory ../ chain based on the depth
+# of the target from it ancestor platform directory
+$(PLATFORM_SYMLINKS):
+	cd $(dir $@); $(LNS) $(subst $(SPACE),$(EMPTY),$(patsubst %,../,$(subst /,$(SPACE),$(subst $(PLATFORM_DIR),$(EMPTY),$@))))$(subst $(PLATFORM_DIR),any,$@)
+
+#---------------------------------------
+
+clean:
+	
+cleanfinal:
+	$(RM) $(RM_FLAGS_FORCE) $(TARGET_FILES)
+	
+clobber: clean cleanfinal
+	
+cleanidl: clean
+
+cleanall: clean
+
+clobberall: clobber
+
+#---------------------------------------	    
+# (end of file)	 			

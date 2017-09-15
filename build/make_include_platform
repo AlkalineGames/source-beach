@@ -1,0 +1,335 @@
+#-----------------------------------------------------------
+#   Copyright 2002-2017 (c) Alkaline Games LLC
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#-----------------------------------------------------------
+#       file:   make_include_platform
+#    project:   all projects 
+#   platform:   Android, FreeBSD, GNU/Linux, iOS, Mac OS X, MinGW/Win32
+#     format:   GNU Make
+#    authors:   Christopher Augustus
+#-----------------------------------------------------------
+#   Define the variables that determine the target platform.
+#-----------------------------------------------------------
+
+ifdef RELEASE
+    DEBUG_OR_RELEASE := release
+else
+    DEBUG_OR_RELEASE := debug
+endif
+
+ifeq ($(device),droid)
+    CPU_ARCH        := armv7
+    OS_NAME         := Android
+else
+ifeq ($(device),freebsd)
+    CPU_ARCH        := i386
+    OS_NAME         := FreeBSD
+else
+ifeq ($(device),ioshard)
+    CPU_ARCH        := armv7
+    CPU_ARCH_OTHER  := i386
+    OS_NAME         := iOS
+    OS_DEFINE       := OCEAN_OS_IOS_HARDWARE
+    SDK             := iPhoneOS
+    SDK_VER         := 6.1
+else
+ifeq ($(device),iossim)
+    CPU_ARCH        := i386
+    CPU_ARCH_OTHER  := armv7
+    OS_NAME         := iOS
+    OS_DEFINE       := OCEAN_OS_IOS_SIMULATOR
+    SDK             := iPhoneSimulator
+    SDK_VER         := 4.3
+else
+ifeq ($(device),linux32)
+    CPU_ARCH        := i686
+    OS_NAME         := Linux
+else
+ifeq ($(device),linux64)
+    CPU_ARCH        := x86_64
+    OS_NAME         := Linux
+else
+ifeq ($(device),mac64)
+    CPU_ARCH        := x86_64
+    OS_NAME         := Darwin
+else
+ifeq ($(device),win32)
+    CPU_ARCH        := i686
+    OS_NAME         := MINGW32_NT-6.2
+else
+    CPU_ARCH        := $(shell uname -m)
+    OS_NAME         := $(shell uname -s)
+endif
+endif
+endif
+endif
+endif
+endif
+endif
+endif
+
+ifeq ($(OS_NAME),Android)
+    OS                          := android
+    OS_DEFINE                   := OCEAN_OS_ANDROID
+    OS_VENDOR                   := google
+    OS_FAMILY                   := LINUX
+    OS_API                      := gnu
+    OS_API_UC                   := GNU
+    OS_API_COMMON               := posix
+    OS_API_DESKTOP              := x
+    OS_OFFICIAL                 := $(OS)
+    BITS                        := 32
+else
+ifeq ($(OS_NAME),Darwin)
+    OS                          := macosx
+    OS_DEFINE                   := OCEAN_OS_MACOSX
+    OS_VENDOR                   := apple
+    OS_FAMILY                   := BSD
+    OS_API                      := gnu
+    OS_API_UC                   := GNU
+    OS_API_COMMON               := posix
+    OS_API_DESKTOP              := x
+    OS_OFFICIAL                 := $(OS)
+    ifeq ($(CPU_ARCH),x86_64)
+        BITS := 64
+    else
+        BITS := 32
+    endif
+    OCEAN_OPENGL_TYPE           := OCEAN_OPENGL_CORE
+    ifdef LINK_TERMINAL
+        LINK_LIBS_TERMINAL      := -Wl,-framework,Cocoa
+    endif
+    ifdef LINK_OPENGL
+        LINK_LIBS_OPENGL        := -Wl,-framework,OpenGL
+    endif
+    CXX                         := clang++
+else
+ifeq ($(OS_NAME),FreeBSD)
+    OS                          := freebsd
+    OS_DEFINE                   := OCEAN_OS_FREEBSD
+    OS_VENDOR                   := freebsd
+    OS_FAMILY                   := BSD
+    OS_API                      := gnu
+    OS_API_UC                   := GNU
+    OS_API_COMMON               := posix
+    OS_API_DESKTOP              := x
+    OS_OFFICIAL                 := $(OS)
+    ifeq ($(CPU_ARCH),amd64)
+        BITS := 64
+    else
+        BITS := 32
+    endif
+    CXX_FLAG_PIC                := -fPIC
+    CXX_FLAGS_PLATFORM          := $(CXX_FLAG_PIC)
+    SHARED_LIB_EXT              := .so
+    LINK_FLAGS                  := -fPIC
+    LINK_LIBS_STDCXX            := -lstdc++
+    LINK_LIBS_THREADS           := -pthread
+    LINK_SHARED_LIBS            := $(LINK_LIBS_STDCXX) $(LINK_LIBS_THREADS)
+    ifdef LINK_OPENGL
+        LINK_LIBS_OPENGL        := -lGL
+        LINK_SHARED_LIBS        := $(LINK_LIBS_OPENGL) $(LINK_SHARED_LIBS)
+    endif
+    BUILD_IGNORE_DESKTOP        := true
+else
+ifeq ($(OS_NAME),iOS)
+    OS                          := ios
+    OS_VENDOR                   := apple
+    OS_FAMILY                   := OCEAN_OS_IOS
+    OS_ANCESTOR                 := BSD
+    OS_API                      := gnu
+    OS_API_UC                   := GNU
+    OS_API_COMMON               := posix
+    OS_API_DESKTOP              := x
+    OS_OFFICIAL                 := $(OS)
+    PLATFORM_UNIVERSAL          := $(OS_OFFICIAL)
+    PLATFORM_OTHER              := $(OS_OFFICIAL)_$(CPU_ARCH_OTHER)
+    BITS                        := 32
+    PATH_XCODE                  := /Applications/Xcode.app/Contents/Developer
+    PATH_SDK                    := $(PATH_XCODE)/Platforms/$(SDK).platform/Developer/SDKs/$(SDK)$(SDK_VER).sdk
+    PATH_TOOLCHAIN              := $(PATH_XCODE)/Toolchains/XcodeDefault.xctoolchain
+    CXX                         := $(PATH_TOOLCHAIN)/usr/bin/clang
+    CXX_FLAG_ARCH               := -arch $(CPU_ARCH)
+    CXX_FLAG_ISYSROOT           := -isysroot $(PATH_SDK)
+    CXX_FLAG_LANG               := -x c++
+    CXX_FLAG_M                  := -miphoneos-version-min=$(SDK_VER)
+##  DO WE NEED THIS?
+#    CXX_FLAG_PASCAL_STRINGS     := -fpascal-strings
+#    CXX_FLAGS_UNRESOLVED        := -fmessage-length=0 -Wno-trigraphs -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-shorten-64-to-32 -Wpointer-sign -Wno-newline-eof -Wdeprecated-declarations -g -fvisibility=hidden -Wno-sign-conversion
+    CXX_FLAGS_PLATFORM          := $(CXX_FLAG_ARCH) $(CXX_FLAG_LANG) $(CXX_FLAG_PASCAL_STRINGS) $(CXX_FLAG_M) $(CXX_FLAG_ISYSROOT) $(CXX_FLAGS_UNRESOLVED)
+#    CXX_POST_STANDARD_INCLUDES  := -I$(PATH_TOOLCHAIN)/usr/include -I$(PATH_SDK)/usr/include -I$(PATH_SDK)/usr/include/c++/4.2.1
+##  COPIED FROM Xcode BUILD LOG
+##    CXX_FLAGS_PLATFORM          := -x c -arch armv7 -fmessage-length=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wreturn-type -Wformat -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-shorten-64-to-32 -Wpointer-sign -Wno-newline-eof -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk -Wdeprecated-declarations -g -fvisibility=hidden -Wno-sign-conversion -miphoneos-version-min=3.1.3
+##    CXX_FLAGS_PLATFORM          := $(CXX_FLAGS_PLATFORM) -MMD -MT dependencies 
+    OCEAN_OPENGL_TYPE           := OCEAN_OPENGL_ES
+    ifdef LINK_OPENGL
+        LINK_LIBS_OPENGL        := -Wl,-framework,OpenGLES
+    endif
+    BUILD_IGNORE_ASSEMBLY       := true
+    BUILD_IGNORE_PLUGINS        := true
+    BUILD_IGNORE_PROGRAMS       := true
+    BUILD_IGNORE_TESTS          := true
+else
+ifeq ($(OS_NAME),Linux)
+    OS                          := linux
+    OS_DEFINE                   := OCEAN_OS_GNU_LINUX
+    OS_VENDOR                   := linux
+    OS_FAMILY                   := LINUX
+    OS_API                      := gnu
+    OS_API_UC                   := GNU
+    OS_API_COMMON               := posix
+    OS_API_DESKTOP              := x
+    OS_OFFICIAL                 := $(OS_API)_$(OS)
+    OCEAN_OPENGL_TYPE           := OCEAN_OPENGL_CORE
+else
+    OS                          := mingw
+    OS_DEFINE                   := OCEAN_OS_WINDOWS
+    OS_VENDOR                   := microsoft
+    OS_FAMILY                   := WINDOWS
+    OS_API                      := win32
+    OS_API_UC                   := WIN32
+    OS_API_COMMON               := win32
+    OS_API_DESKTOP              := win32
+    OS_OFFICIAL                 := $(OS)
+    OCEAN_OPENGL_TYPE           := OCEAN_OPENGL_CORE
+endif
+endif
+endif
+endif
+endif
+
+ifeq ($(OS_VENDOR),apple)
+    CXX_CLANG                   := true
+    CXX_FLAG_PIC                := -fPIC
+## unnecessary on llvm 3.5 because this is the default
+##    CXX_FLAG_STDCXX             := -stdlib=libc++
+##    CXX_FLAGS_PLATFORM          := $(CXX_FLAG_PIC) $(CXX_FLAG_STDCXX) $(CXX_FLAGS_PLATFORM)
+    CXX_FLAGS_PLATFORM          := $(CXX_FLAG_PIC) $(CXX_FLAGS_PLATFORM)
+    CXX_POST_STANDARD_INCLUDES  := -I$(PATH_TOOLCHAIN)/usr/X11/include
+    SHARED_LIB_EXT              := .so
+    LINK_BASIS                  := llvm
+    LINK_FLAGS                  := -fPIC
+    LINK_LIBS_STDCXX            := -lc++
+## no longer supported on llvm 3.5
+##    LINK_LIBS_THREADS           := -pthread
+    LINK_SHARED_LIBS            := $(LINK_LIBS_STDCXX) $(LINK_LIBS_THREADS)
+    ifdef LINK_TERMINAL
+        LINK_SHARED_LIBS        := $(LINK_LIBS_TERMINAL) $(LINK_SHARED_LIBS)
+    endif
+    ifdef LINK_GUI
+        LINK_LIBS_GUI           := -liconv -lX11 -lXext -lXcursor -lXinerama -lXi -lXrandr -lXss -lXxf86vm -Wl,-framework,OpenGL -Wl,-framework,ForceFeedback -lobjc -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,IOKit -Wl,-framework,CoreAudio -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit -Wl,-framework,OpenGL
+## -R is no longer supported on llvm 3.5
+##        LINK_LIB_DIRS           := $(LINK_LIB_DIRS) -L/usr/X11/lib -R/usr/X11/lib 
+        LINK_LIB_DIRS           := $(LINK_LIB_DIRS) -L/usr/X11/lib
+        LINK_SHARED_LIBS        := $(LINK_LIBS_GUI) $(LINK_SHARED_LIBS)
+    endif
+    ifdef LINK_OPENGL
+## SHOULDN'T NEED THIS
+##        LINK_LIB_DIRS           := $(LINK_LIB_DIRS) -L/System/Library/Frameworks/OpenGL.framework/Versions/Current/Libraries
+        LINK_SHARED_LIBS        := $(LINK_LIBS_OPENGL) $(LINK_SHARED_LIBS)
+    endif
+    BUILD_IGNORE_SERVERS        := true
+else
+ifeq ($(OS_FAMILY),LINUX)
+    ifeq ($(CPU_ARCH),x86_64)
+        BITS := 64
+### _pic.a IS NO LONGER BUILT FOR GENTOO GCC 4.4.5,
+### SO WE WILL ONLY USE THE _pic.a LIBRARY WE CREATE IN COAST
+#        LINK_LIBS_STDCXX        := -lstdc++_pic
+        LINK_LIBS_STDCXX_PIC    := -lstdc++_pic
+        LINK_LIBS_STDCXX        := -lstdc++
+        CXX_FLAG_MARCH          := -march=x86-64
+    else
+        BITS := 32
+        LINK_LIBS_STDCXX        := -lstdc++
+        CXX_FLAG_MARCH          := -march=$(CPU_ARCH)
+    endif
+    CXX_FLAG_PIC                := -fPIC
+    CXX_FLAG_PTHREAD            := -pthread
+    CXX_FLAG_USE_CXA_ATEXIT     := -fuse-cxa-atexit
+    CXX_FLAG_NO_USE_CXA_ATEXIT  := -fno-use-cxa-atexit
+    CXX_FLAGS_PLATFORM          := $(CXX_FLAG_MARCH) $(CXX_FLAG_PIC) $(CXX_FLAG_PTHREAD)
+    SHARED_LIB_EXT              := .so
+    SHARED_LIB_TOOL_FLAGS       := -static-libgcc
+    LINK_LIB_DIRS               := $(LINK_LIB_DIRS) -L/usr/local/lib
+    LINK_LIBS                   := $(LINK_LIBS_STDCXX) $(LINK_LIBS)
+    ifdef LINK_THREADS
+        LINK_LIBS_THREADS       := -lpthread
+        LINK_SHARED_LIBS        := $(LINK_LIBS_THREADS) $(LINK_SHARED_LIBS)
+    endif
+    ifdef LINK_RUNTIME
+        LINK_LIBS_RUNTIME       := -lrt
+        LINK_SHARED_LIBS        := $(LINK_LIBS_RUNTIME) $(LINK_SHARED_LIBS)
+    endif
+    ifdef LINK_DYNAMIC_LOAD
+        LINK_LIBS_DYNAMIC_LOAD  := -ldl
+        LINK_SHARED_LIBS        := $(LINK_LIBS_DYNAMIC_LOAD) $(LINK_SHARED_LIBS)
+    endif
+    ifdef LINK_MATH
+        LINK_LIBS_MATH          := -lm
+        LINK_SHARED_LIBS        := $(LINK_LIBS_MATH) $(LINK_SHARED_LIBS)
+    endif
+    ifdef LINK_GUI
+        LINK_LIBS_GUI           := -lX11 -lXext -lXcursor -lXinerama -lXi -lXrandr -lXss -lXxf86vm
+        LINK_SHARED_LIBS        := $(LINK_LIBS_GUI) $(LINK_SHARED_LIBS)
+    endif
+    ifdef LINK_OPENGL
+        LINK_LIBS_OPENGL        := -lGL
+        LINK_SHARED_LIBS        := $(LINK_LIBS_OPENGL) $(LINK_SHARED_LIBS)
+    endif
+else
+ifeq ($(OS_FAMILY),WINDOWS)
+    BITS                        := $(CPU_ARCH)
+    RESOURCE_COMPILER           := windres
+    EXECUTABLE_EXT              := .exe
+    SHARED_LIB_EXT              := .dll
+    CXX_FLAGS_PLATFORM          := $(CXX_FLAG_THREADS_MINGW)
+    ifndef CXX_MSVC
+        LINK_LIBS_STDCXX        := -lstdc++
+    endif
+    LINK_LIBS                   := $(LINK_LIBS_STDCXX) $(LINK_LIBS)
+    ifdef LINK_RUNTIME
+        LINK_LIBS_RUNTIME       := -liberty
+        LINK_SHARED_LIBS        := $(LINK_LIBS_RUNTIME) $(LINK_SHARED_LIBS)
+    endif
+    ifdef LINK_SOCKETS
+        LINK_LIBS_SOCKETS       := -lws2_32
+        LINK_SHARED_LIBS        := $(LINK_LIBS_SOCKETS) $(LINK_SHARED_LIBS)
+    endif
+    ifdef LINK_GUI
+        LINK_FLAGS              := -mwindows -Wl,-u,_WinMain@16
+## don't seem to need these for SDL 2.0:
+#        LINK_LIBS_GUI           := -ladvapi32 -luser32
+        LINK_LIBS_GUI           := -lgdi32 -limm32 -lole32 -loleaut32 -lversion -luuid
+        LINK_SHARED_LIBS        := $(LINK_LIBS_GUI) $(LINK_SHARED_LIBS)
+    endif
+    ifdef LINK_MM
+        LINK_LIBS_MM_MINGW      := -lwinmm
+        LINK_LIBS_MM_DX         := -ldsound
+        LINK_LIBS_MM            := $(LINK_LIBS_MM_MINGW) $(LINK_LIBS_MM_DX)
+        LINK_SHARED_LIBS        := $(LINK_LIBS_MM) $(LINK_SHARED_LIBS)
+    else
+        ifdef LINK_TIMING
+            LINK_LIBS_TIMING    := -lwinmm
+            LINK_SHARED_LIBS    := $(LINK_LIBS_TIMING) $(LINK_SHARED_LIBS)
+        endif
+    endif
+    ifdef LINK_OPENGL
+        LINK_LIBS_OPENGL        := -lopengl32
+        LINK_SHARED_LIBS        := $(LINK_LIBS_OPENGL) $(LINK_SHARED_LIBS)
+    endif
+endif
+endif
+endif
+
+CXX_EXTRA_DEFINES := $(CXX_EXTRA_DEFINES) -DBEACH_ALLOCATION_DEFAULT
+
+OS_DATABASE := null
+
+PLATFORM := $(OS_OFFICIAL)_$(CPU_ARCH)
+
+#---------------------------------------	    
+# (end of file)	 			

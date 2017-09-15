@@ -1,0 +1,2 @@
+#!/bin/bash
+gdb --command=gdb_cmds_dirs_beach beach_test_lifecycle

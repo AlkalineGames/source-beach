@@ -1,0 +1,14 @@
+#!/bin/bash
+# common subscript to debug a program
+#
+if [[ -z $1 || -z $2 || -z $3 || -z $4 ]]
+then
+    echo 'usage: subdebug <debugger> <dirs suffix> <args prog> <args args> <executable> [<gdb options>]'
+    exit 1
+fi
+ARGS=`s/echo_args_$3 $4`
+echo "set args $ARGS" >temp_gdb_cmds_set_args
+### MIGHT NOT NEED dirs WITH MOST RECENT gdb
+###$1 --command=gdb_cmds_dirs_$2 --command=temp_gdb_cmds_set_args $5 $4
+$1 --command=temp_gdb_cmds_set_args $5 $6 $7 $8 $9
+#

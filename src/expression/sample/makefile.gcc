@@ -1,0 +1,67 @@
+#
+# Makefile for GCC
+#
+
+#
+# NOTE: -lgpp maybe -lg++ on your system
+#
+
+CC=gcc
+CCFLAGS= -g -fno-implicit-templates -I..
+
+.c.o:
+	$(CC) -c $(CCFLAGS) $*.c
+
+.cc.o:
+	$(CC) $(CCFLAGS) -c $*.cc
+
+
+expression.o: ../regexp.h ../expression.h
+	$(CC) $(CCFLAGS) -c -o expression.o ../expression.cc
+
+regex.o: ../regex.c
+	$(CC) $(CCFLAGS) -c -o regex.o ../regex.c 
+
+chgfnt: chgfnt.o expression.o regex.o
+	$(CC) $(CCFLAGS) -DTESTCHGFNT -o chgfnt chgfnt.o expression.o regex.o -lgpp
+
+chgfnt.o: chgfnt.cc
+	$(CC) -c $(CCFLAGS) -DTESTCHGFNT chgfnt.cc
+
+cislog: cislog.o expression.o regex.o
+	$(CC) $(CCFLAGS) -DTESTcislog -o cislog cislog.o expression.o regex.o  -lgpp
+
+cislog.o: cislog.cc
+	$(CC) -c $(CCFLAGS) cislog.cc
+
+xcl: xcl.o expression.o regex.o tracer.o
+	$(CC) $(CCFLAGS) -o xcl xcl.o expression.o regex.o tracer.o  -lgpp
+
+xcl.o: xcl.cc
+	$(CC) $(CCFLAGS) -DDOTRACER -c xcl.cc
+
+justify: justify.o expression.o regex.o tracer.o
+	$(CC) $(CCFLAGS) -o justify justify.o expression.o regex.o tracer.o  -lgpp
+
+justify.o: justify.cc
+	$(CC) $(CCFLAGS) -DDOTRACER -c justify.cc
+
+tstio: tstio.o expression.o regex.o
+	$(CC) $(CCFLAGS) -o tstio tstio.o expression.o regex.o -lgpp
+
+tstio.o: tstio.cc
+	$(CC) -c $(CCFLAGS) -DTSTIO tstio.cc
+
+setini: setini.o expression.o regex.o
+	$(CC) $(CCFLAGS) -o setini setini.o expression.o regex.o -lgpp
+
+assoc: assoc.o expression.o regex.o
+	$(CC) $(CCFLAGS) -DTESTASSOC -o assoc assoc.o expression.o regex.o -lgpp
+
+assoc.o: assoc.cc
+	$(CC) $(CCFLAGS) -c -DTESTASSOC assoc.cc
+
+tstiter: tstiter.o expression.o regex.o
+	$(CC) $(CCFLAGS) -o tstiter tstiter.o expression.o regex.o  -lgpp
+
+

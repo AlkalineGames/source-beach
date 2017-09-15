@@ -1,0 +1,35 @@
+#-----------------------------------------------------------
+#   Copyright 2002-2017 (c) Alkaline Games LLC
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#-----------------------------------------------------------
+#       file:   make_include_parent
+#    project:   (any) 
+#   platform:   independent
+#     format:   GNU Make
+#    authors:   Christopher Augustus
+#-----------------------------------------------------------
+#   Define the parent settings for any project or partition.
+#
+#   This include sets some variables based on the current values
+#   of certain critical control variables:
+#
+#   PARENT_RELATIVE_PATH    relative path from `pwd` to this directory 
+#-----------------------------------------------------------
+
+#---------------------------------------
+#   include the next parent 
+#---------------------------------------	    
+
+PARENT_RELATIVE_PATH_SAVE := $(PARENT_RELATIVE_PATH) $(PARENT_RELATIVE_PATH_SAVE)
+PARENT_RELATIVE_PATH      := $(PARENT_RELATIVE_PATH)/..
+
+include $(PARENT_RELATIVE_PATH)/make_include_parent
+
+PARENT_RELATIVE_PATH      := $(firstword $(PARENT_RELATIVE_PATH_SAVE))
+PARENT_RELATIVE_PATH_SAVE := $(wordlist 2, 999, $(PARENT_RELATIVE_PATH_SAVE))
+
+#---------------------------------------
+# (end of file)	 			

@@ -1,0 +1,80 @@
+#-----------------------------------------------------------
+#   Copyright 2002-2017 (c) Alkaline Games LLC
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#-----------------------------------------------------------
+#       file:   make_include_common_gcc
+#    project:   all projects 
+#   platform:   independent
+#     format:   GNU Make
+#    authors:   Christopher Augustus
+#-----------------------------------------------------------
+#   Define the common settings using gcc.
+#-----------------------------------------------------------
+
+ifndef CXX
+CXX                             := gcc
+endif
+
+CPP_FLAGS_DIAGNOSTIC            := -H
+#CXX_EXTRA_FLAGS                 := $(CXX_EXTRA_FLAGS) $(CPP_FLAGS_DIAGNOSTIC)
+
+# note: debug flag -gstabs will cause all kinds of gdb problems,
+# but it was previously used to keep drive letters out of source paths on MinGW
+CXX_FLAG_CXX0X                  := -std=c++0x
+CXX_FLAG_DEBUG                  := -ggdb
+CXX_FLAG_DEPS                   := -MD
+CXX_FLAG_MAKERULE               := -M
+ifndef CXX_FLAG_IMPLICIT_TEMPLATES
+CXX_FLAG_NO_IMPLICIT_TEMPLATES  := -fno-implicit-templates
+endif
+CXX_FLAG_OPTIMIZE               := -O3
+CXX_FLAG_PACK_STRUCT            := -fpack-struct
+CXX_FLAG_PIPE                   := -pipe
+CXX_FLAG_PROFILE                := -pg
+CXX_FLAG_THREADS_MINGW          := -mthreads
+CXX_FLAG_WARNINGS               := -w
+
+ARCHIVE                         := ar
+ARCHIVE_OP_REPLACE              := r
+ARCHIVE_MOD_AUTO_CREATE         := c
+ARCHIVE_MOD_SYMBOL_INDEX        := s
+ARCHIVE_MOD_VERBOSE             := v
+ARCHIVE_FLAGS                   := $(ARCHIVE_OP_REPLACE)$(ARCHIVE_MOD_AUTO_CREATE)$(ARCHIVE_MOD_SYMBOL_INDEX)$(ARCHIVE_MOD_VERBOSE)
+
+LINK                            := $(CXX)
+ifeq ($(LINK_BASIS),llvm)
+LINK_FLAG_DYNAMIC               := -Wl
+else
+LINK_FLAG_DYNAMIC               := -Wl,-dy
+endif
+LINK_FLAG_PROFILE               := -pg
+LINK_FLAG_RDYNAMIC              := -rdynamic
+ifeq ($(LINK_BASIS),llvm)
+LINK_FLAG_STATIC                := -Wl
+else
+## -dn is no longer supported on llvm 3.5 
+##LINK_FLAG_STATIC                := -Wl,-dn
+LINK_FLAG_STATIC                := -Wl,-static
+endif
+ifndef CXX_CLANG
+LINK_FLAG_STATIC_LIBGCC         := -static-libgcc
+endif
+LINK_FLAG_VERBOSE               := -v
+LINK_FLAGS                      := $(LINK_FLAGS_PLATFORM) $(LINK_FLAG_RDYNAMIC) $(LINK_FLAG_STATIC_LIBGCC)
+LINK_LIB_DIRS                   := $(LINK_LIB_DIRS) $(LINK_EXTRA_LIB_DIRS) -L$(LIBRARY_DIR)
+LINK_LIBS                       := $(LINK_FLAG_STATIC) $(LINK_LIBS)
+ifdef LINK_SHARED_LIBS
+LINK_LIBS                       := $(LINK_LIBS) $(LINK_FLAG_DYNAMIC) $(LINK_SHARED_LIBS)
+endif
+ifdef LINK_EXTRA_LIBS
+LINK_LIBS                       := $(LINK_LIBS) $(LINK_EXTRA_LIBS)
+endif
+
+SHARED_LIB_TOOL                 := gcc
+SHARED_LIB_TOOL_FLAGS           := -shared $(SHARED_LIB_TOOL_FLAGS)
+
+#---------------------------------------
+# (end of file)             

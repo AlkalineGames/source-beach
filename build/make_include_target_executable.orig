@@ -1,0 +1,74 @@
+#-----------------------------------------------------------
+#   Copyright 2002-2017 (c) Alkaline Games LLC
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#-----------------------------------------------------------
+#       file:   make_include_target_executable
+#    project:   all projects 
+#   platform:   independent
+#     format:   GNU Make
+#    authors:   Christopher Augustus
+#-----------------------------------------------------------
+#   Define the standard target for building an executable.
+#
+#   This file sets some variables based on the current values
+#   of these critical control variables:
+#
+#   COMPONENT       component name
+#   LINK_LIB_DIRS   list of directories for libraries
+#   LINK_LIBS       list of libraries to link with
+#   OBJECTS         list of object files
+#-----------------------------------------------------------
+
+EXECUTABLE := $(TARGET_DIR)/$(COMPONENT_PREFIX)$(COMPONENT)$(EXECUTABLE_EXT)
+
+#---------------------------------------
+#   targets
+#---------------------------------------
+
+all: $(EXECUTABLE)
+
+$(EXECUTABLE): $(TARGET_DIR) $(OBJECTS_DIR) $(OBJECTS) $(OBJECTS_TEMPLATED) $(RESOURCES)
+	$(LINK) $(LINK_FLAGS) $(LINK_LIB_DIRS) -o $@ $(OBJECTS) $(OBJECTS_TEMPLATED) $(RESOURCES) $(LINK_LIBS)
+
+$(TARGET_DIR):
+	$(MKDIR) $(MKDIR_FLAGS) $(TARGET_DIR)
+
+$(OBJECTS_DIR):
+	$(MKDIR) $(MKDIR_FLAGS) $(OBJECTS_DIR)
+
+$(OBJECTS): $(OBJECTS_DIR)/%.o: %.cpp
+	$(CXX) $(CXX_FLAG_NO_IMPLICIT_TEMPLATES) $(CXX_FLAGS) -c $< -o $@
+
+$(OBJECTS): $(OBJECTS_DIR)/%.o: %.rs
+	$(RUST) $(RUST_FLAG_NO_IMPLICIT_TEMPLATES) $(RUST_FLAGS) -c $< -o $@
+
+$(OBJECTS_TEMPLATED): $(OBJECTS_DIR)/%.o: %.cpp
+	$(CXX) $(CXX_FLAGS) -c $< -o $@
+
+$(OBJECTS_TEMPLATED): $(OBJECTS_DIR)/%.o: %.rs
+	$(RUST) $(RUST_FLAGS) -c $< -o $@
+
+$(RESOURCES): $(OBJECTS_DIR)/%.o: %.rc
+	$(RESOURCE_COMPILER) $< $@
+
+#---------------------------------------
+
+clean:
+	$(RM) $(RM_FLAGS) $(OBJECTS) $(OBJECTS_TEMPLATED)
+	
+cleanfinal:
+	$(RM) $(RM_FLAGS) $(EXECUTABLE)
+	
+clobber: clean cleanfinal
+	
+cleanidl: clean
+
+cleanall: clean
+
+clobberall: clobber
+
+#---------------------------------------	    
+# (end of file)	 			

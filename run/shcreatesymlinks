@@ -1,0 +1,41 @@
+#!/bin/sh
+SUBSCRIPT_GET_PLATFORM=shsub_get_platform
+TOPDIR=..
+while [ ! -f $TOPDIR/$SUBSCRIPT_GET_PLATFORM ]
+do
+    TOPDIR=$TOPDIR/..
+    if [ ! -d $TOPDIR ]
+    then
+        echo "!!! must be in a platform subdirectory below "$SUBSCRIPT_GET_PLATFORM
+        exit 1
+    fi
+done
+THISDIR=$(pwd)
+cd $TOPDIR
+FULLTOPDIR=$(pwd)
+cd $THISDIR
+PLATFORMREM=${THISDIR#$FULLTOPDIR/}
+PLATFORMONLY=${PLATFORMREM%%/*}
+PLATFORMDIR=$FULLTOPDIR/$PLATFORMONLY
+THISDIRONLY=${THISDIR#$PLATFORMDIR/}
+ANYDIR=$TOPDIR/any/$THISDIRONLY
+echo "FULLTOPDIR=="$FULLTOPDIR
+echo "PLATFORMONLY="$PLATFORMONLY
+echo "PLATFORMREM="$PLATFORMREM
+echo "PLATFORMDIR=="$PLATFORMDIR
+echo "THISDIR=="$THISDIR
+echo "THISDIRONLY=="$THISDIRONLY
+echo "ANYDIR=="$ANYDIR
+rm `find . -type l`
+ln -sv $ANYDIR/* .
+#
+# $Log: shcreatesymlinks,v $
+# Revision 1.3  2007/12/24 08:42:45  cat
+# changed double [[ ]] to single [ ] because not compatible with FreeBSD; added . to find
+#
+# Revision 1.2  2007/12/18 11:59:45  cat
+# ANYDIR relative, not absolute; remove existing links first
+#
+# Revision 1.1  2007/12/17 10:03:50  cat
+# created
+#

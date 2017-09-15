@@ -1,0 +1,26 @@
+#!/bin/bash
+# determine platform and set variables
+#
+UNAMEM=`uname -m`
+UNAMES=`uname -s`
+OSARCH=$UNAMEM
+if [[ $UNAMES == FreeBSD ]]
+then
+    OS=freebsd
+elif [[ $UNAMES == Linux ]]
+then
+    OS=gnu_linux
+elif [[ ${UNAMES/_*/} == MINGW32 ]]
+then
+    OS=mingw
+else
+    echo "platform $OS is not supported"
+    exit 1
+fi
+PLATFORM="${OS}_$OSARCH"
+echo "PLATFORM==$PLATFORM"
+#
+# $Log: shsub_get_platform,v $
+# Revision 1.1  2007/12/16 12:33:46  cat
+# copied from ../code/pubic
+#

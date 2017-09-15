@@ -1,0 +1,64 @@
+#
+# Borland c++ makefile
+#
+CC = bcc32
+CCFLAGS = -WX -v -Ic:\work\expression
+.c.obj:
+  $(CC) -c $(CCFLAGS) {$< }
+
+.cpp.obj:
+  $(CC) $(CCFLAGS) -c {$< }
+
+RM = del
+
+expression.obj: ../regexp.h ../expression.h
+	$(CC) $(CCFLAGS) -c -oexpression.obj ../expression.cpp
+
+regex.obj: ../regex.c
+	$(CC) $(CCFLAGS) -c -w-pro -oregex.obj ../regex.c
+
+chgfnt.exe: chgfnt.obj expression.obj regex.obj
+	$(CC) $(CCFLAGS) -DTESTCHGFNT -v chgfnt.obj expression.obj regex.obj
+
+chgfnt.obj: chgfnt.cpp
+	$(CC) -c $(CCFLAGS) -DTESTCHGFNT chgfnt.cpp
+
+cislog.exe: cislog.obj expression.obj regex.obj
+	$(CC) $(CCFLAGS) -DTESTcislog -v cislog.obj expression.obj regex.obj
+
+cislog.obj: cislog.cpp
+	$(CC) -c $(CCFLAGS) cislog.cpp
+
+xcl.exe: xcl.obj expression.obj regex.obj tracer.obj
+	$(CC) $(CCFLAGS) -v xcl.obj expression.obj regex.obj tracer.obj
+
+xcl.obj: xcl.cpp
+	$(CC) $(CCFLAGS) -DDOTRACER -c xcl.cpp
+
+justify.exe: justify.obj expression.obj regex.obj tracer.obj
+	$(CC) $(CCFLAGS) -v justify.obj expression.obj regex.obj tracer.obj
+
+justify.obj: justify.cpp
+	$(CC) $(CCFLAGS) -DDOTRACER -c justify.cpp
+
+tstio.exe: tstio.obj expression.obj regex.obj
+	$(CC) $(CCFLAGS) -v tstio.obj expression.obj regex.obj
+
+tstio.obj: tstio.cpp
+	$(CC) -c $(CCFLAGS) -DTSTIO tstio.cpp
+
+setini.exe: setini.obj expression.obj regex.obj
+	$(CC) $(CCFLAGS) setini.obj expression.obj regex.obj
+
+assoc.exe: assoc.obj expression.obj regex.obj
+	$(CC) $(CCFLAGS) -DTESTASSOC assoc.obj expression.obj regex.obj
+
+assoc.obj: assoc.cpp
+	$(CC) $(CCFLAGS) -c -DTESTASSOC assoc.cpp
+
+tstiter.exe: tstiter.obj expression.obj regex.obj
+	$(CC) $(CCFLAGS) tstiter.obj expression.obj regex.obj
+
+clean:
+	$(RM) *.obj *.exe
+

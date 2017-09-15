@@ -1,0 +1,10 @@
+#!/bin/bash
+# change directory to the platform's subdirectory
+#
+. shsub_get_platform
+cd $PLATFORM
+#
+# $Log: cdplat,v $
+# Revision 1.1  2007/12/16 12:32:25  cat
+# created; replaced cddebug
+#

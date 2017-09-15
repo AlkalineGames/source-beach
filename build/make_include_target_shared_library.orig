@@ -1,0 +1,80 @@
+#-----------------------------------------------------------
+#   Copyright 2004-2017 (c) Alkaline Games LLC
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#-----------------------------------------------------------
+#       file:   make_include_target_shared_library
+#    project:   all projects 
+#   platform:   independent
+#     format:   GNU Make
+#    authors:   Christopher Augustus
+#-----------------------------------------------------------
+#   Define the standard target for building a shared library.
+#
+#   This file sets some variables based on the current values
+#   of these critical control variables:
+#
+#   COMPONENT       component name
+#   LINK_LIB_DIRS   list of directories for libraries
+#   LINK_LIBS       list of libraries to link with
+#   OBJECTS         list of object files
+#-----------------------------------------------------------
+
+SHARED_LIBRARY := $(TARGET_DIR)/$(COMPONENT_PREFIX)$(COMPONENT)$(SHARED_LIB_EXT)
+
+#---------------------------------------
+#   targets
+#---------------------------------------
+
+all: $(SHARED_LIBRARY)
+
+ifdef CXX_MSVC
+$(SHARED_LIBRARY): $(TARGET_DIR) $(OBJECTS_DIR) $(OBJECTS) $(OBJECTS_TEMPLATED)
+	$(SHARED_LIB_TOOL) $(LINK_LIBS) $(OBJECTS) $(OBJECTS_TEMPLATED) -Fe$@ $(SHARED_LIB_TOOL_FLAGS) 
+else
+$(SHARED_LIBRARY): $(TARGET_DIR) $(OBJECTS_DIR) $(OBJECTS) $(OBJECTS_TEMPLATED)
+	$(SHARED_LIB_TOOL) $(SHARED_LIB_TOOL_FLAGS) $(LINK_LIB_DIRS) -o $@ $(OBJECTS) $(OBJECTS_TEMPLATED) $(LINK_LIBS)
+endif
+
+$(TARGET_DIR):
+	$(MKDIR) $(MKDIR_FLAGS) $(TARGET_DIR)
+
+$(OBJECTS_DIR):
+	$(MKDIR) $(MKDIR_FLAGS) $(OBJECTS_DIR)
+
+ifdef CXX_MSVC
+$(OBJECTS): $(OBJECTS_DIR)/%.obj: %.cpp
+	$(CXX) $(CXX_FLAG_NO_IMPLICIT_TEMPLATES) $(CXX_FLAGS) -c $< -Fo$@ -Fd$(@D)/$(COMPONENT).pdb
+else
+$(OBJECTS): $(OBJECTS_DIR)/%.o: %.cpp
+	$(CXX) $(CXX_FLAG_NO_IMPLICIT_TEMPLATES) $(CXX_FLAGS) -c $< -o $@
+$(OBJECTS): $(OBJECTS_DIR)/%.o: %.rs
+	$(RUST) $(RUST_FLAG_NO_IMPLICIT_TEMPLATES) $(RUST_FLAGS) -c $< -o $@
+endif
+
+$(OBJECTS_TEMPLATED): $(OBJECTS_DIR)/%.o: %.cpp
+	$(CXX) $(CXX_FLAGS) -c $< -o $@
+
+$(OBJECTS_TEMPLATED): $(OBJECTS_DIR)/%.o: %.rs
+	$(RUST) $(RUST_FLAGS) -c $< -o $@
+
+#---------------------------------------
+
+clean:
+	$(RM) $(RM_FLAGS) $(OBJECTS)
+	
+cleanfinal:
+	$(RM) $(RM_FLAGS) $(SHARED_LIBRARY)
+	
+clobber: clean cleanfinal
+	
+cleanidl: clean
+
+cleanall: clean
+
+clobberall: clobber
+
+#---------------------------------------	    
+# (end of file)	 			

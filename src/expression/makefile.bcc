@@ -1,0 +1,38 @@
+#
+#
+# Borland c++ Makefile for expression and tests
+#
+#
+CC = bcc32
+CCFLAGS = -WX -v -Ic:\bc4\include
+
+#		*Implicit Rules*
+.c.obj:
+  $(CC) -c $(CCFLAGS) {$< }
+
+.cpp.obj:
+  $(CC) $(CCFLAGS) -c {$< }
+
+spltest.exe: texpression.obj regex.obj
+	$(CC) $(CCFLAGS) -c -DTEST spltest.cpp
+	$(CC) $(CCFLAGS) spltest.obj texpression.obj regex.obj
+
+slicetst.exe: slicetst.obj texpression.obj regex.obj
+	$(CC) -c $(CCFLAGS) -DTEST slicetst.cpp
+	$(CC) $(CCFLAGS) slicetst.obj texpression.obj regex.obj
+
+texpression.obj: expression.cpp regexp.h expression.h
+	$(CC) -c $(CCFLAGS) -DTEST expression.cpp
+	move expression.obj texpression.obj
+
+expression.obj: regexp.h expression.h
+
+regex.obj: regex.c
+	$(CC) $(CCFLAGS) -c -w-pro regex.c
+
+test: spltest.exe slicetst.exe
+	spltest > x1
+	diff x1 expression.v
+	slicetst > x2
+	diff x2 slicetst.v
+

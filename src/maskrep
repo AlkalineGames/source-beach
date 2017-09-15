@@ -1,0 +1,17 @@
+/COAST_SHELL/               s//COAST_WHORL/g
+/include <shell/            s//include <whorl/g
+/namespace execution/       s//namespace program/g
+/namespace shell/           s//namespace whorl/g
+/shell_plugin/              s//plugin_whorl/g
+/shell_program/             s//program_whorl/g
+/media_program/             s//program_media/g
+/command_line_program/      s//program_command_line/g
+/terminal_program/          s//program_terminal/g
+/threed_media_program/      s//program_media_threed/g
+/auto_ownership_pointer/    s//pointer_ownership_auto/g
+/deny_ownership_pointer/    s//pointer_ownership_deny/g
+/grant_ownership_pointer/   s//pointer_ownership_grant/g
+/ownership_pointer/         s//pointer_ownership/g
+/string_list/               s//list_of_string/g
+/echo_stream_adapter/       s//stream_echo_adapter/g
+/string_stream/             s//stream_string/g

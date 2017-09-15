@@ -1,0 +1,63 @@
+#!/bin/bash
+#-----------------------------------------------------------
+#
+#  Copyright 2002-2012 (c) World Fusion (r)
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+#-----------------------------------------------------------
+# subscript to build any dependency
+#
+DIR_THIS=`pwd`
+ARG1=$1
+. ../shsub_get_platform
+if [ -d ../../../../../code ]
+then
+    cd ../../../../..
+else
+    cd ..
+fi
+DIR_TOP=`pwd`
+cd $DIR_THIS
+DIR_OCEAN=$DIR_TOP/ocean/$PLATFORM
+DIR_BUILT=$DIR_OCEAN/$DEP_NAME
+DIR_BUILT_BIN=$DIR_BUILT/bin
+DIR_BUILT_DIST=$DIR_BUILT/dist
+DIR_BUILT_INCLUDE=$DIR_BUILT/include
+DIR_BUILT_LIB=$DIR_BUILT/lib
+if [ "$ARG1" == "clean" ]
+then
+    rm -fR $DIR_BUILT_DIST
+    rm -fR $DIR_BUILT/out
+    exit
+elif [ "$ARG1" == "clobber" ]
+then
+    rm -fR $DIR_BUILT
+    exit
+fi
+mkdir -pv $DIR_BUILT
+DIR_BUILT_DIST_SPEC=$DIR_BUILT_DIST/$DEP_SPEC
+if [ ! -d $DIR_BUILT_DIST_SPEC ]
+then
+    mkdir $DIR_BUILT_DIST
+    cd $DIR_BUILT_DIST
+    tar $DEP_TAR_ARGS $DIR_THIS/$DEP_TARBALL
+    if [ "$DEP_TARBALL2" != "" ]
+    then
+        tar $DEP_TAR_ARGS $DIR_THIS/$DEP_TARBALL2
+    fi 
+    cd $DIR_THIS
+    DEP_DIST_EXTRACTED=true
+    ARG1=init
+fi
+# (end)

@@ -1,0 +1,37 @@
+#
+#
+# GCC Makefile for expression and tests
+#
+#
+
+CC=gcc
+CCFLAGS= -g -fno-implicit-templates
+.c.o:
+	$(CC) -c $(CCFLAGS) $*.c
+
+.cc.o:
+	$(CC) $(CCFLAGS) -c $*.cc
+
+spltest: texpression.o regex.o
+	$(CC) $(CCFLAGS) -c -DTEST spltest.cc
+	$(CC) $(CCFLAGS) -o spltest spltest.o texpression.o regex.o -lgpp
+
+slicetst: slicetst.cc texpression.o regex.o
+	$(CC) -c $(CCFLAGS) -DTEST slicetst.cc
+	$(CC) $(CCFLAGS) -o slicetst slicetst.o texpression.o regex.o -lgpp
+
+texpression.o: expression.cc regexp.h expression.h
+	$(CC) -c $(CCFLAGS) -DTEST expression.cc
+	move expression.o texpression.o
+
+expression.o: regexp.h expression.h
+
+regex.o: regex.c
+	$(CC) $(CCFLAGS) -c regex.c
+
+test: spltest slicetst
+	spltest > x1
+	diff x1 expression.v
+	slicetst > x2
+	diff x2 slicetst.v
+

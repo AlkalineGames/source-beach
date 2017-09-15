@@ -1,0 +1,32 @@
+#-----------------------------------------------------------
+#   Copyright 2002-2017 (c) Alkaline Games LLC
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#-----------------------------------------------------------
+#       file:   make_include_cppunit
+#    project:   all projects 
+#   platform:   independent
+#     format:   GNU Make
+#    authors:   Christopher Augustus
+#-----------------------------------------------------------
+#   Define the settings needed to compile and link unit tests
+#   based on cppunit.
+#
+#   This file sets some variables based on the current values
+#   of certain critical control variables:
+#
+#   OCEAN_DIR == relative path to ocean platform directory 
+#-----------------------------------------------------------
+
+PATH_CPPUNIT            := $(PATH_OCEAN)/cppunit
+PATH_CPPUNIT_INCLUDE    := $(PATH_CPPUNIT)/include
+PATH_CPPUNIT_LIB        := $(PATH_CPPUNIT)/lib
+PROJECT_INCLUDES        := -I$(PATH_CPPUNIT_INCLUDE) $(PROJECT_INCLUDES)
+LINK_LIB_DIRS           := -L$(PATH_CPPUNIT_LIB) $(LINK_LIB_DIRS)
+LINK_LIBS_CPPUNIT       := -lcppunit
+LINK_LIBS               := $(LINK_LIBS_CPPUNIT) $(LINK_LIBS)
+
+#---------------------------------------	    
+# (end of file)	 			

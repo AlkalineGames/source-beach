@@ -1,0 +1,49 @@
+#!/bin/bash
+#-----------------------------------------------------------
+#
+#  Copyright 2002-2012 (c) World Fusion (r)
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+#
+#-----------------------------------------------------------
+# build cppunit
+#
+DEP_NAME=cppunit
+DEP_VERSION=1.12.1
+DEP_SPEC=$DEP_NAME-$DEP_VERSION
+DEP_TARBALL=$DEP_SPEC.tar.gz
+DEP_TAR_ARGS=xvzf
+. ../shsub_build $1
+cd $DIR_BUILT_DIST_SPEC
+if [ $OS != mingw ]
+then
+    export LIBS=$LIBS" -lpthread"
+fi
+./configure --disable-dependency-tracking --disable-doxygen --disable-shared
+libtoolize --copy --force
+$CMD_MAKE clean
+$CMD_MAKE
+mkdir -pv $DIR_BUILT_INCLUDE
+mkdir -pv $DIR_BUILT_INCLUDE/cppunit
+mkdir -pv $DIR_BUILT_INCLUDE/cppunit/config
+mkdir -pv $DIR_BUILT_INCLUDE/cppunit/extensions
+mkdir -pv $DIR_BUILT_INCLUDE/cppunit/portability
+cp -pRv include/cppunit/*.h $DIR_BUILT_INCLUDE/cppunit/
+cp -pRv include/cppunit/config/*.h $DIR_BUILT_INCLUDE/cppunit/config/
+cp -pRv include/cppunit/extensions/*.h $DIR_BUILT_INCLUDE/cppunit/extensions/
+cp -pRv include/cppunit/portability/*.h $DIR_BUILT_INCLUDE/cppunit/portability/
+mkdir -pv $DIR_BUILT_LIB
+cp -v `find . -name '*.a'` $DIR_BUILT_LIB
+cp -v `find . -name '*.la'` $DIR_BUILT_LIB
+cp -v `find . -name '*.lai'` $DIR_BUILT_LIB
+# (end)

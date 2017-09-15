@@ -1,0 +1,46 @@
+#-----------------------------------------------------------
+#   Copyright 2005-2017 (c) Alkaline Games LLC
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#-----------------------------------------------------------
+#       file:   make_include_target_makes
+#    project:   all projects 
+#   platform:   independent
+#     format:   GNU Make
+#    authors:   Christopher Augustus
+#-----------------------------------------------------------
+#   Define the standard set of target names for target make files.
+#
+#   This file sets some variables based on the current values
+#   of these critical control variables:
+#
+#   MAKES     list of target make files
+#-----------------------------------------------------------
+
+#---------------------------------------
+#   targets
+#---------------------------------------
+
+.PHONY: $(MAKES) all clean cleanfinal clobber cleanidl cleanall clobberall
+
+all: $(MAKES)
+
+clean: $(MAKES)
+
+cleanfinal: $(MAKES)
+
+clobber: $(MAKES)
+
+cleanidl: $(MAKES)
+
+cleanall: $(MAKES)
+
+clobberall: $(MAKES)
+
+$(MAKES):
+	$(MAKE) -w -f $@ $(MAKECMDGOALS)
+
+#---------------------------------------	    
+# (end of file)	 			

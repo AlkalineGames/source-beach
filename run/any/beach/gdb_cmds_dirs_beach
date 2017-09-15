@@ -1,0 +1,15 @@
+directory ../../../code/public/beach/test/serialization
+directory ../../../code/public/beach/test/notification
+directory ../../../code/public/beach/test/lifecycle
+directory ../../../code/public/beach/test/expression
+directory ../../../code/public/beach/test/collection
+directory ../../../code/public/beach/test/atoms
+directory ../../../code/public/beach/src/serialization
+directory ../../../code/public/beach/src/notification
+directory ../../../code/public/beach/src/lifecycle
+directory ../../../code/public/beach/src/invocation
+directory ../../../code/public/beach/src/geometry
+directory ../../../code/public/beach/src/expression
+directory ../../../code/public/beach/src/collection
+directory ../../../code/public/beach/src/chain
+directory ../../../code/public/beach/src/atoms

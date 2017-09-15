@@ -1,0 +1,32 @@
+#-----------------------------------------------------------
+#   Copyright 2002-2017 (c) Alkaline Games LLC
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#-----------------------------------------------------------
+#       file:   make_include_common
+#    project:   all projects 
+#   platform:   independent
+#     format:   GNU Make
+#    authors:   Christopher Augustus
+#-----------------------------------------------------------
+#   Define the common configuration for building all projects.
+#   This file should be included by the topmost make_include_parent.
+#
+#   This file sets some variables based on the current values
+#   of these critical control variables:
+#
+#   BUILD_DIR   relative path from `pwd` to this directory 
+#-----------------------------------------------------------
+
+include $(BUILD_DIR)/make_include_platform
+
+ifdef OCEAN_DEBUG_NEW
+ifndef OCEAN_DEBUG_NEW_IGNORE
+include $(OCEAN_DIR)/make_include_nvwa
+endif
+endif
+
+#---------------------------------------
+# (end of file)             

@@ -1,0 +1,17 @@
+/COAST_SHELL/               p
+/include <shell/            p
+/namespace execution/       p
+/namespace shell/           p
+/shell_plugin/              p
+/shell_program/             p
+/media_program/             p
+/command_line_program/      p
+/terminal_program/          p
+/threed_media_program/      p
+/auto_ownership_pointer/    p
+/deny_ownership_pointer/    p
+/grant_ownership_pointer/   p
+/ownership_pointer/         p
+/string_list/               p
+/echo_stream_adapter/       p
+/string_stream/             p

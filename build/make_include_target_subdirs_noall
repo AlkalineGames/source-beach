@@ -1,0 +1,46 @@
+#-----------------------------------------------------------
+#   Copyright 2003-2017 (c) Alkaline Games LLC
+#
+#   This Source Code Form is subject to the terms of the Mozilla Public
+#   License, v. 2.0. If a copy of the MPL was not distributed with this
+#   file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#-----------------------------------------------------------
+#       file:   make_include_target_subdirs
+#    project:   all projects 
+#   platform:   independent
+#     format:   GNU Make
+#    authors:   Christopher Augustus
+#-----------------------------------------------------------
+#   Define the standard set target names for target subdirectories.
+#
+#   This file sets some variables based on the current values
+#   of these critical control variables:
+#
+#   SUBDIRS     list of target subdirectories
+#-----------------------------------------------------------
+
+#---------------------------------------
+#   targets
+#---------------------------------------
+
+.PHONY: $(SUBDIRS) subdirs clean cleanfinal clobber cleanidl cleanall clobberall
+
+subdirs: $(SUBDIRS)
+
+clean: $(SUBDIRS)
+
+cleanfinal: $(SUBDIRS)
+
+clobber: $(SUBDIRS)
+
+cleanidl: $(SUBDIRS)
+
+cleanall: $(SUBDIRS)
+
+clobberall: $(SUBDIRS)
+
+$(SUBDIRS):
+	$(MAKE) -w -C $@ $(MAKECMDGOALS)
+
+#---------------------------------------	    
+# (end of file)	 			
